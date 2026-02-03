@@ -25,10 +25,7 @@ body {
   background: radial-gradient(circle at center, #3a1f29, #1c0f14 70%);
   position: relative;
   overflow-x: hidden;
-  overflow-y: hidden;
-  transition: transform 3s ease, filter 3s ease;
-  will-change: transform;
-  padding: 20px;
+  padding: 30px 16px;   /* balanced side spacing */
   box-sizing: border-box;
 }
 
@@ -103,18 +100,22 @@ body {
 
 .glassPanel {
   width: 100%;
-  max-width: 480px;
-  padding: 40px 30px;
+  margin: 0 auto;
+  max-width: 420px;     /* smaller, more elegant */
+  padding: 36px 28px;
   border-radius: 28px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(25px);
   text-align: center;
   color: #f8e9ef;
   z-index: 3;
-  transition: background 0.3s ease, transform 1s ease;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.35),
+    0 0 40px rgba(255,80,120,0.08);
   box-sizing: border-box;
 }
+
 
 /* Expand animation */
 .expandPanel {
