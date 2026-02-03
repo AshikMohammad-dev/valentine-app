@@ -283,3 +283,31 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* ============================= */
+/* Remove Mobile Tap Highlight */
+/* ============================= */
+
+.envelopeBox,
+.cinemaButton,
+.glassReplayBtn {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+/* Remove focus ring */
+.envelopeBox:focus,
+.cinemaButton:focus,
+.glassReplayBtn:focus {
+  outline: none;
+}
+
+/* Premium press feedback */
+.envelopeBox:active {
+  transform: scale(0.96);
+}
+
+.cinemaButton:active,
+.glassReplayBtn:active {
+  transform: scale(0.97);
+}
