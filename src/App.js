@@ -113,7 +113,7 @@ function App() {
 
       <div className="gifWrapper">
         <img
-          src="/jasmin-cat.gif"
+           src={process.env.PUBLIC_URL + "/jasmin-cat.gif"}
           alt="Romantic"
           className="roundGif"
         />
