@@ -311,3 +311,31 @@ body {
 .glassReplayBtn:active {
   transform: scale(0.97);
 }
+
+
+/* ============================= */
+/* Chrome Mobile Tap Fix */
+/* ============================= */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.envelopeBox,
+.cinemaButton,
+.glassReplayBtn {
+  outline: none;
+  user-select: none;
+}
+
+.envelopeBox:focus,
+.cinemaButton:focus,
+.glassReplayBtn:focus {
+  outline: none;
+}
+
+.envelopeBox:active,
+.cinemaButton:active,
+.glassReplayBtn:active {
+  transform: scale(0.96);
+}
