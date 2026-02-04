@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 function App() {
@@ -13,6 +13,8 @@ function App() {
   const [typedSignature, setTypedSignature] = useState("");
   const [reverseMode, setReverseMode] = useState(false);
   const [petals, setPetals] = useState([]);
+
+  const scrollRef = useRef(null);
 
   const signatureText = "— Yours. Always.";
 
@@ -29,12 +31,59 @@ function App() {
     },
     {
       title: "The Future I See",
-      content:
+      content: [
+        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there.",
+        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there.",
+        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there.",
+        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there.",
         "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there."
+      ]
     }
   ];
 
-  /* Petals */
+  /* Reset scroll when letter changes */
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [currentLetter]);
+
+  /* Dynamic scroll fade effect */
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+
+      const isTop = scrollTop <= 5;
+      const isBottom = scrollTop + clientHeight >= scrollHeight - 5;
+
+      el.style.setProperty("--topFade", isTop ? "0" : "1");
+      el.style.setProperty("--bottomFade", isBottom ? "0" : "1");
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [currentLetter]);
+
+  /* MOBILE HEIGHT FIX */
+  useEffect(() => {
+    const setRealHeight = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+    };
+
+    setRealHeight();
+    window.addEventListener("resize", setRealHeight);
+    return () => window.removeEventListener("resize", setRealHeight);
+  }, []);
+
+  /* PETALS */
   useEffect(() => {
     const p = Array.from({ length: 18 }).map((_, i) => ({
       id: i,
@@ -46,7 +95,6 @@ function App() {
     setPetals(p);
   }, []);
 
-  /* Envelope Open */
   const openEnvelope = () => {
     if (isOpening) return;
     setIsOpening(true);
@@ -57,7 +105,6 @@ function App() {
     }, 600);
   };
 
-  /* Navigation */
   const nextLetter = () => {
     if (currentLetter < letters.length - 1) {
       setDirection("next");
@@ -72,9 +119,9 @@ function App() {
     }
   };
 
-  /* Final */
   const handleFinal = () => {
     setStage("final");
+
     setTimeout(() => setFinalZoom(true), 200);
 
     setTimeout(() => {
@@ -88,7 +135,6 @@ function App() {
     }, 1000);
   };
 
-  /* Replay */
   const replay = () => {
     setReverseMode(true);
 
@@ -169,7 +215,15 @@ function App() {
               }`}
             >
               <h3>{letters[currentLetter].title}</h3>
-              <p>{letters[currentLetter].content}</p>
+
+              <div className="letterContentScroll" ref={scrollRef}>
+                {Array.isArray(letters[currentLetter].content)
+                  ? letters[currentLetter].content.map((para, index) => (
+                      <p key={index}>{para}</p>
+                    ))
+                  : <p>{letters[currentLetter].content}</p>
+                }
+              </div>
             </div>
 
             <div className="navControls">
