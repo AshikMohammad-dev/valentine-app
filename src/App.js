@@ -4,8 +4,10 @@ import "./App.css";
 function App() {
   const [stage, setStage] = useState("envelope");
   const [expand, setExpand] = useState(false);
-  const [showMemories, setShowMemories] = useState(false);
-  const [showQuestion, setShowQuestion] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
+  const [showLetters, setShowLetters] = useState(false);
+  const [currentLetter, setCurrentLetter] = useState(0);
+  const [direction, setDirection] = useState("next");
   const [finalZoom, setFinalZoom] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
   const [typedSignature, setTypedSignature] = useState("");
@@ -14,34 +16,25 @@ function App() {
 
   const signatureText = "— Yours. Always.";
 
-  // 🌌 Tilt Glow (Mobile + Mouse)
-  useEffect(() => {
-    const handleMove = (e) => {
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const letters = [
+    {
+      title: "The Day We Met",
+      content:
+        "I didn’t know that a simple moment would quietly change my direction. But it did. And I’m grateful it was you."
+    },
+    {
+      title: "When It Became Real",
+      content:
+        "It wasn’t fireworks. It was consistency. Comfort. The quiet certainty that even on ordinary days, I still chose you."
+    },
+    {
+      title: "The Future I See",
+      content:
+        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there."
+    }
+  ];
 
-      const x = clientX / window.innerWidth;
-      const y = clientY / window.innerHeight;
-
-      const glowX = x * 100;
-      const glowY = y * 100;
-
-      const panel = document.querySelector(".glassPanel");
-      if (panel) {
-        panel.style.background = `radial-gradient(circle at ${glowX}% ${glowY}%, rgba(255,255,255,0.18), rgba(255,255,255,0.07))`;
-      }
-    };
-
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("touchmove", handleMove, { passive: true });
-
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("touchmove", handleMove);
-    };
-  }, []);
-
-  // 🌹 Generate Petals
+  /* Petals */
   useEffect(() => {
     const p = Array.from({ length: 18 }).map((_, i) => ({
       id: i,
@@ -53,15 +46,36 @@ function App() {
     setPetals(p);
   }, []);
 
+  /* Envelope Open */
   const openEnvelope = () => {
+    if (isOpening) return;
+    setIsOpening(true);
     setExpand(true);
-    setTimeout(() => setShowMemories(true), 1200);
-    setTimeout(() => setShowQuestion(true), 4200);
+
+    setTimeout(() => {
+      setShowLetters(true);
+    }, 600);
   };
 
-  const handleYes = () => {
+  /* Navigation */
+  const nextLetter = () => {
+    if (currentLetter < letters.length - 1) {
+      setDirection("next");
+      setCurrentLetter(prev => prev + 1);
+    }
+  };
+
+  const prevLetter = () => {
+    if (currentLetter > 0) {
+      setDirection("prev");
+      setCurrentLetter(prev => prev - 1);
+    }
+  };
+
+  /* Final */
+  const handleFinal = () => {
     setStage("final");
-    setTimeout(() => setFinalZoom(true), 300);
+    setTimeout(() => setFinalZoom(true), 200);
 
     setTimeout(() => {
       setShowSignature(true);
@@ -71,22 +85,24 @@ function App() {
         i++;
         if (i > signatureText.length) clearInterval(interval);
       }, 60);
-    }, 2000);
+    }, 1000);
   };
 
+  /* Replay */
   const replay = () => {
     setReverseMode(true);
 
     setTimeout(() => {
       setStage("envelope");
       setExpand(false);
-      setShowMemories(false);
-      setShowQuestion(false);
+      setIsOpening(false);
+      setShowLetters(false);
+      setCurrentLetter(0);
       setFinalZoom(false);
       setShowSignature(false);
       setTypedSignature("");
       setReverseMode(false);
-    }, 1200);
+    }, 800);
   };
 
   return (
@@ -97,7 +113,7 @@ function App() {
     >
       <div className="vignette" />
 
-      {petals.map((p) => (
+      {petals.map(p => (
         <div
           key={p.id}
           className="petal"
@@ -113,16 +129,23 @@ function App() {
 
       <div className="gifWrapper">
         <img
-           src={process.env.PUBLIC_URL + "/jasmin-cat.gif"}
+          src={process.env.PUBLIC_URL + "/jasmin-cat.gif"}
           alt="Romantic"
           className="roundGif"
         />
       </div>
 
       <div className={`glassPanel ${expand ? "expandPanel" : ""}`}>
-        {stage === "envelope" && (
+
+        {/* Envelope */}
+        {stage === "envelope" && !showLetters && (
           <div className="envelopeSection">
-            <div className="envelopeBox pulseEnvelope" onClick={openEnvelope}>
+            <div
+              className={`envelopeBox pulseEnvelope ${
+                isOpening ? "envelopeOpen" : ""
+              }`}
+              onClick={openEnvelope}
+            >
               💌
             </div>
             <h2 className="envelopeTitle">
@@ -133,41 +156,62 @@ function App() {
           </div>
         )}
 
-        {showMemories && stage !== "final" && (
-          <div className="memoryTimeline">
-            <div className="memoryCard card1">
-              <span className="heartIcon">❤</span>
-              <h3>The day we met</h3>
-              <p>It quietly changed my direction.</p>
+        {/* Letters */}
+        {showLetters && stage !== "final" && (
+          <div className="letterCarousel letterReveal">
+
+            <div
+              key={currentLetter}
+              className={`letterCard ${
+                direction === "next"
+                  ? "slideInRight"
+                  : "slideInLeft"
+              }`}
+            >
+              <h3>{letters[currentLetter].title}</h3>
+              <p>{letters[currentLetter].content}</p>
             </div>
 
-            <div className="memoryCard card2">
-              <span className="heartIcon">❤</span>
-              <h3>When it became real</h3>
-              <p>It was consistency. Not perfection.</p>
-            </div>
+            <div className="navControls">
+              <button
+                className="glassNavBtn"
+                onClick={prevLetter}
+                disabled={currentLetter === 0}
+              >
+                Back
+              </button>
 
-            <div className="memoryCard card3">
-              <span className="heartIcon">❤</span>
-              <h3>The moment I chose the future</h3>
-              <p>I saw years ahead. And you were still there.</p>
+              <div className="dotContainer">
+                {letters.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`dot ${
+                      currentLetter === index ? "activeDot" : ""
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {currentLetter === letters.length - 1 ? (
+                <button
+                  className="glassNavBtn"
+                  onClick={handleFinal}
+                >
+                  Continue
+                </button>
+              ) : (
+                <button
+                  className="glassNavBtn"
+                  onClick={nextLetter}
+                >
+                  Next
+                </button>
+              )}
             </div>
           </div>
         )}
 
-        {showQuestion && stage !== "final" && (
-          <div className="questionBlock fadeInSlow">
-            <p className="cinemaQuestion">
-              Will you build a life with me —
-              <br />
-              for the long road ahead?
-            </p>
-            <button className="cinemaButton" onClick={handleYes}>
-              Yes. I will.
-            </button>
-          </div>
-        )}
-
+        {/* Final */}
         {stage === "final" && (
           <div className="finalBlock fadeInSlow">
             <h1 className="finalLine">
@@ -190,6 +234,7 @@ function App() {
             )}
           </div>
         )}
+
       </div>
     </div>
   );
