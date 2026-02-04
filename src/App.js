@@ -9,34 +9,38 @@ function App() {
   const [currentLetter, setCurrentLetter] = useState(0);
   const [direction, setDirection] = useState("next");
   const [finalZoom, setFinalZoom] = useState(false);
-  const [showSignature, setShowSignature] = useState(false);
-  const [typedSignature, setTypedSignature] = useState("");
   const [reverseMode, setReverseMode] = useState(false);
   const [petals, setPetals] = useState([]);
+  const [showBottomShadow, setShowBottomShadow] = useState(false);
 
   const scrollRef = useRef(null);
-
-  const signatureText = "— Yours. Always.";
 
   const letters = [
     {
       title: "The Day We Met",
-      content:
-        "I didn’t know that a simple moment would quietly change my direction. But it did. And I’m grateful it was you."
+      content: [
+        "I didn’t know that a simple moment would quietly change my direction.",
+        "But it did.",
+        "And I’m grateful it was you."
+      ]
     },
     {
       title: "When It Became Real",
-      content:
-        "It wasn’t fireworks. It was consistency. Comfort. The quiet certainty that even on ordinary days, I still chose you."
+      content: [
+        "It wasn’t fireworks.",
+        "It was consistency.",
+        "Comfort.",
+        "The quiet certainty that even on ordinary days, I still chose you."
+      ]
     },
     {
       title: "The Future I See",
       content: [
-        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there.",
-        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there.",
-        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there.",
-        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there.",
-        "Years from now. Growth. Change. Challenges. Ordinary mornings. Unexpected nights. I still see you there."
+        "Years from now.",
+        "Growth. Change. Challenges.",
+        "Ordinary mornings.",
+        "Unexpected nights.",
+        "And I still see you there."
       ]
     }
   ];
@@ -45,52 +49,32 @@ function App() {
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = 0;
+      checkScroll();
     }
   }, [currentLetter]);
 
-  /* Dynamic scroll fade effect */
-  useEffect(() => {
+  /* Detect scroll */
+  const checkScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
 
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = el;
+    const isScrollable = el.scrollHeight > el.clientHeight;
+    const atBottom =
+      el.scrollTop + el.clientHeight >= el.scrollHeight - 5;
 
-      const isTop = scrollTop <= 5;
-      const isBottom = scrollTop + clientHeight >= scrollHeight - 5;
+    setShowBottomShadow(isScrollable && !atBottom);
+  };
 
-      el.style.setProperty("--topFade", isTop ? "0" : "1");
-      el.style.setProperty("--bottomFade", isBottom ? "0" : "1");
-    };
-
-    el.addEventListener("scroll", handleScroll);
-    handleScroll();
-
-    return () => el.removeEventListener("scroll", handleScroll);
-  }, [currentLetter]);
-
-  /* MOBILE HEIGHT FIX */
+  /* Petals */
   useEffect(() => {
-    const setRealHeight = () => {
-      document.documentElement.style.setProperty(
-        "--vh",
-        `${window.innerHeight * 0.01}px`
-      );
-    };
-
-    setRealHeight();
-    window.addEventListener("resize", setRealHeight);
-    return () => window.removeEventListener("resize", setRealHeight);
-  }, []);
-
-  /* PETALS */
-  useEffect(() => {
-    const p = Array.from({ length: 18 }).map((_, i) => ({
+    const p = Array.from({ length: 64 }).map((_, i) => ({
       id: i,
       left: Math.random() * 100,
-      delay: Math.random() * 6,
-      duration: 12 + Math.random() * 8,
-      size: 6 + Math.random() * 10
+      delay: Math.random() * 8,
+      duration: 14 + Math.random() * 10,
+      size: 6 + Math.random() * 14,
+      opacity: 0.3 + Math.random() * 0.4
+
     }));
     setPetals(p);
   }, []);
@@ -121,18 +105,7 @@ function App() {
 
   const handleFinal = () => {
     setStage("final");
-
     setTimeout(() => setFinalZoom(true), 200);
-
-    setTimeout(() => {
-      setShowSignature(true);
-      let i = 0;
-      const interval = setInterval(() => {
-        setTypedSignature(signatureText.slice(0, i));
-        i++;
-        if (i > signatureText.length) clearInterval(interval);
-      }, 60);
-    }, 1000);
   };
 
   const replay = () => {
@@ -145,8 +118,6 @@ function App() {
       setShowLetters(false);
       setCurrentLetter(0);
       setFinalZoom(false);
-      setShowSignature(false);
-      setTypedSignature("");
       setReverseMode(false);
     }, 800);
   };
@@ -183,7 +154,6 @@ function App() {
 
       <div className={`glassPanel ${expand ? "expandPanel" : ""}`}>
 
-        {/* Envelope */}
         {stage === "envelope" && !showLetters && (
           <div className="envelopeSection">
             <div
@@ -195,14 +165,13 @@ function App() {
               💌
             </div>
             <h2 className="envelopeTitle">
-              There’s something I’ve already decided.
+              I need your attention for a second.
             </h2>
             <p className="openText">Tap the letter to open.</p>
             <div className="tapHint">↓</div>
           </div>
         )}
 
-        {/* Letters */}
         {showLetters && stage !== "final" && (
           <div className="letterCarousel letterReveal">
 
@@ -214,16 +183,21 @@ function App() {
                   : "slideInLeft"
               }`}
             >
-              <h3>{letters[currentLetter].title}</h3>
+              <div
+                className="letterContentScroll"
+                ref={scrollRef}
+                onScroll={checkScroll}
+              >
+                <h3>{letters[currentLetter].title}</h3>
 
-              <div className="letterContentScroll" ref={scrollRef}>
-                {Array.isArray(letters[currentLetter].content)
-                  ? letters[currentLetter].content.map((para, index) => (
-                      <p key={index}>{para}</p>
-                    ))
-                  : <p>{letters[currentLetter].content}</p>
-                }
+                {letters[currentLetter].content.map((para, index) => (
+                  <p key={index}>{para}</p>
+                ))}
               </div>
+
+              {showBottomShadow && (
+                <div className="bottomScrollShadow" />
+              )}
             </div>
 
             <div className="navControls">
@@ -265,7 +239,6 @@ function App() {
           </div>
         )}
 
-        {/* Final */}
         {stage === "final" && (
           <div className="finalBlock fadeInSlow">
             <h1 className="finalLine">
@@ -278,14 +251,9 @@ function App() {
               Through ordinary years and unexpected ones.
             </p>
 
-            {showSignature && (
-              <>
-                <p className="signature">{typedSignature}</p>
-                <button className="glassReplayBtn" onClick={replay}>
-                  Replay This
-                </button>
-              </>
-            )}
+            <button className="glassReplayBtn" onClick={replay}>
+              Replay This
+            </button>
           </div>
         )}
 
