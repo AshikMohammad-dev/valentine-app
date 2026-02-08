@@ -12,6 +12,8 @@ function App() {
   const [reverseMode, setReverseMode] = useState(false);
   const [petals, setPetals] = useState([]);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
+  const [isOpeningStage, setIsOpeningStage] = useState(false);
+
 
   const scrollRef = useRef(null);
 
@@ -19,29 +21,41 @@ function App() {
     {
       title: "The Day We Met",
       content: [
-        "I didn’t know that a simple moment would quietly change my direction.",
-        "But it did.",
-        "And I’m grateful it was you."
+        "Orma undo ponuveeee the day first we texted?🫠",
+        "Oru sadharana conversation ayrn. Ath nmmmde orumich ulla yathrayk oru thudakam kurich🥺🫠",
+        "Never thought I'd fall in love with you pashe ath nte ponuuuninodoppam ayrnu nn orkumbo I'm so grateful and I'm lucky🫠.",
       ]
     },
     {
-      title: "When It Became Real",
+      title: "The day you held my arm",
       content: [
-        "It wasn’t fireworks.",
-        "It was consistency.",
-        "Comfort.",
-        "The quiet certainty that even on ordinary days, I still chose you."
+        "Ann nmml first time nerit kandpo nte kayyime pidiche orma undo ponuveee?🫠",
+        "Ann ninte kayyil nte kayy cherna aa nimisham, njan ottek alla nn ee lokham thane enod choondi kanich thanna pole thoni...",
+        " Aa nimisham thott thane nte muzhuvan lokham ninnil othungi🥹🫠"
+ 
+      ]
+    },
+
+    {
+      title: "Those little things",
+      content:[
+        "Enikk vendi nte ponuuu karanja nimishangal… athil njan nte ponuvinte hridayathnte sathyam kandit und, sneham manslakt und.🫠", 
+        "Ijj enne ‘ikkuvee’ nn vilikkumbo enik nth santhosham anenn aryoo, ponuveeee. 🫠🥺 ",
+        "Ponuveee, ni aarkm kodkathe enik mathrm thanna aa attention,aa priority, ninte care, nte kude spent cheyth oroo nimishangal nte ponuvinee koodthl bhangi akeete ull😭😭🥺",
+        "Nte ponuuu enik oroo vettam enik oru urula choor vaari therumbo athinte ruchi koodeete ull🫠 ",
+        "Ithokke cheriya karyangal pole thonnm... pashe enik valya karyngl ahn, ponuveeee🫠❤️"
       ]
     },
     {
       title: "The Future I See",
       content: [
-        "Years from now.",
-        "Growth. Change. Challenges.",
-        "Ordinary mornings.",
-        "Unexpected nights.",
-        "And I still see you there."
-      ]
+        "Varshangal kadann poyalum, jeevitham nammle pala vazhililoode kondupoyalum, santhoshavum vedhanakalum nammle parikshichalum…",
+        "Njan kaanunna bhaviyil nammal randuperum koode nadakkunna oru yaathra ahn, ponuveeee. 🫠",
+        "Kaalam maariyalum, sthalangal maariyalum, nte mansil oru sthanam und… athil nammde per ahn ezhuthi vechkrn ponuveeee🫠🫠.",
+        "Nte bhaviyude oro chithrathilum nte ponuvineee alland vere aareyum njan kaanunnilla…🫠 Ah chithrathil njanm ninte koodee undaakm nnth nte urapp ahn, ponuveeee.🫠",
+        "I’ll always choose my tomorrows with you, ponuveeee. 🫠❤️"
+  ]
+
     }
   ];
 
@@ -79,15 +93,21 @@ function App() {
     setPetals(p);
   }, []);
 
-  const openEnvelope = () => {
-    if (isOpening) return;
-    setIsOpening(true);
-    setExpand(true);
+const openEnvelope = () => {
+  if (isOpeningStage) return;
 
-    setTimeout(() => {
-      setShowLetters(true);
-    }, 600);
-  };
+  setIsOpeningStage(true);
+
+  // After zoom + shake
+  setTimeout(() => {
+    setExpand(true);
+  }, 400);
+
+  // Reveal letter sliding from inside
+  setTimeout(() => {
+    setShowLetters(true);
+  }, 800);
+};
 
   const nextLetter = () => {
     if (currentLetter < letters.length - 1) {
@@ -165,9 +185,9 @@ function App() {
               💌
             </div>
             <h2 className="envelopeTitle">
-              I need your attention for a second.
+              I need your attention for a second.😒
             </h2>
-            <p className="openText">Tap the letter to open.</p>
+            <p className="openText">Tap the letter to open.👉👈</p>
             <div className="tapHint">↓</div>
           </div>
         )}
@@ -242,11 +262,11 @@ function App() {
         {stage === "final" && (
           <div className="finalBlock fadeInSlow">
             <h1 className="finalLine">
-              I am choosing you for the long road.
+              Ee Neenda Yaathrayil, Ninte Koode
             </h1>
 
             <p className="finalSubLine">
-              Through growth. Through change.
+              Through growth. Through tough times. Through change. 
               <br />
               Through ordinary years and unexpected ones.
             </p>
