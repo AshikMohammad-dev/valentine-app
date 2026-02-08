@@ -1,29 +1,34 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback
+} from "react";
 import "./App.css";
 
 function App() {
   const [stage, setStage] = useState("envelope");
   const [expand, setExpand] = useState(false);
-  const [isOpening, setIsOpening] = useState(false);
   const [showLetters, setShowLetters] = useState(false);
   const [currentLetter, setCurrentLetter] = useState(0);
   const [direction, setDirection] = useState("next");
   const [finalZoom, setFinalZoom] = useState(false);
   const [reverseMode, setReverseMode] = useState(false);
-  const [petals, setPetals] = useState([]);
   const [showBottomShadow, setShowBottomShadow] = useState(false);
   const [isOpeningStage, setIsOpeningStage] = useState(false);
 
-
   const scrollRef = useRef(null);
 
-  const letters = [
+  /* ---------------- Letters ---------------- */
+
+  const letters = useMemo(() => [
     {
       title: "The Day We Met",
       content: [
         "Orma undo ponuveeee the day first we texted?🫠",
         "Oru sadharana conversation ayrn. Ath nmmmde orumich ulla yathrayk oru thudakam kurich🥺🫠",
-        "Never thought I'd fall in love with you pashe ath nte ponuuuninodoppam ayrnu nn orkumbo I'm so grateful and I'm lucky🫠.",
+        "Never thought I'd fall in love with you pashe ath nte ponuuuninodoppam ayrnu nn orkumbo I'm so grateful and I'm lucky🫠."
       ]
     },
     {
@@ -31,18 +36,16 @@ function App() {
       content: [
         "Ann nmml first time nerit kandpo nte kayyime pidiche orma undo ponuveee?🫠",
         "Ann ninte kayyil nte kayy cherna aa nimisham, njan ottek alla nn ee lokham thane enod choondi kanich thanna pole thoni...",
-        " Aa nimisham thott thane nte muzhuvan lokham ninnil othungi🥹🫠"
- 
+        "Aa nimisham thott thane nte muzhuvan lokham ninnil othungi🥹🫠"
       ]
     },
-
     {
       title: "Those little things",
-      content:[
-        "Enikk vendi nte ponuuu karanja nimishangal… athil njan nte ponuvinte hridayathnte sathyam kandit und, sneham manslakt und.🫠", 
-        "Ijj enne ‘ikkuvee’ nn vilikkumbo enik nth santhosham anenn aryoo, ponuveeee. 🫠🥺 ",
-        "Ponuveee, ni aarkm kodkathe enik mathrm thanna aa attention,aa priority, ninte care, nte kude spent cheyth oroo nimishangal nte ponuvinee koodthl bhangi akeete ull😭😭🥺",
-        "Nte ponuuu enik oroo vettam enik oru urula choor vaari therumbo athinte ruchi koodeete ull🫠 ",
+      content: [
+        "Enikk vendi nte ponuuu karanja nimishangal… athil njan nte ponuvinte hridayathnte sathyam kandit und, sneham manslakt und.🫠",
+        "Ijj enne ‘ikkuvee’ nn vilikkumbo enik nth santhosham anenn aryoo, ponuveeee. 🫠🥺",
+        "Ponuveee, ni aarkm kodkathe enik mathrm thanna aa attention, aa priority, ninte care, nte kude spent cheyth oroo nimishangal nte ponuvinee koodthl bhangi akeete ull😭😭🥺",
+        "Nte ponuuu enik oroo vettam enik oru urula choor vaari therumbo athinte ruchi koodeete ull🫠",
         "Ithokke cheriya karyangal pole thonnm... pashe enik valya karyngl ahn, ponuveeee🫠❤️"
       ]
     },
@@ -54,21 +57,25 @@ function App() {
         "Kaalam maariyalum, sthalangal maariyalum, nte mansil oru sthanam und… athil nammde per ahn ezhuthi vechkrn ponuveeee🫠🫠.",
         "Nte bhaviyude oro chithrathilum nte ponuvineee alland vere aareyum njan kaanunnilla…🫠 Ah chithrathil njanm ninte koodee undaakm nnth nte urapp ahn, ponuveeee.🫠",
         "I’ll always choose my tomorrows with you, ponuveeee. 🫠❤️"
-  ]
-
+      ]
     }
-  ];
+  ], []);
 
-  /* Reset scroll when letter changes */
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-      checkScroll();
-    }
-  }, [currentLetter]);
+  /* ---------------- Petals ---------------- */
 
-  /* Detect scroll */
-  const checkScroll = () => {
+  const petals = useMemo(() =>
+    Array.from({ length: 64 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      delay: Math.random() * 8,
+      duration: 14 + Math.random() * 10,
+      size: 6 + Math.random() * 14
+    }))
+  , []);
+
+  /* ---------------- Scroll Logic ---------------- */
+
+  const checkScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
 
@@ -77,56 +84,51 @@ function App() {
       el.scrollTop + el.clientHeight >= el.scrollHeight - 5;
 
     setShowBottomShadow(isScrollable && !atBottom);
-  };
-
-  /* Petals */
-  useEffect(() => {
-    const p = Array.from({ length: 64 }).map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      delay: Math.random() * 8,
-      duration: 14 + Math.random() * 10,
-      size: 6 + Math.random() * 14,
-      opacity: 0.3 + Math.random() * 0.4
-
-    }));
-    setPetals(p);
   }, []);
 
-const openEnvelope = () => {
-  if (isOpeningStage) return;
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+      checkScroll();
+    }
+  }, [currentLetter, checkScroll]);
 
-  setIsOpeningStage(true);
+  /* ---------------- Envelope ---------------- */
 
-  // After zoom + shake
-  setTimeout(() => {
-    setExpand(true);
-  }, 400);
+  const openEnvelope = () => {
+    if (isOpeningStage) return;
 
-  // Reveal letter sliding from inside
-  setTimeout(() => {
-    setShowLetters(true);
-  }, 800);
-};
+    setIsOpeningStage(true);
+    setTimeout(() => setExpand(true), 400);
+    setTimeout(() => setShowLetters(true), 800);
+  };
+
+  /* ---------------- Navigation ---------------- */
 
   const nextLetter = () => {
-    if (currentLetter < letters.length - 1) {
-      setDirection("next");
-      setCurrentLetter(prev => prev + 1);
-    }
+    setDirection("next");
+    setCurrentLetter(prev =>
+      Math.min(prev + 1, letters.length - 1)
+    );
   };
 
   const prevLetter = () => {
-    if (currentLetter > 0) {
-      setDirection("prev");
-      setCurrentLetter(prev => prev - 1);
-    }
+    setDirection("prev");
+    setCurrentLetter(prev =>
+      Math.max(prev - 1, 0)
+    );
   };
 
-  const handleFinal = () => {
-    setStage("final");
-    setTimeout(() => setFinalZoom(true), 200);
-  };
+  /* ---------------- Final Stage ---------------- */
+
+  useEffect(() => {
+    if (stage === "final") {
+      const timer = setTimeout(() => setFinalZoom(true), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [stage]);
+
+  const handleFinal = () => setStage("final");
 
   const replay = () => {
     setReverseMode(true);
@@ -134,13 +136,18 @@ const openEnvelope = () => {
     setTimeout(() => {
       setStage("envelope");
       setExpand(false);
-      setIsOpening(false);
       setShowLetters(false);
       setCurrentLetter(0);
       setFinalZoom(false);
+      setIsOpeningStage(false);
+    }, 600);
+
+    setTimeout(() => {
       setReverseMode(false);
     }, 800);
   };
+
+  /* ---------------- Render ---------------- */
 
   return (
     <div
@@ -173,28 +180,29 @@ const openEnvelope = () => {
       </div>
 
       <div className={`glassPanel ${expand ? "expandPanel" : ""}`}>
-
         {stage === "envelope" && !showLetters && (
           <div className="envelopeSection">
             <div
-              className={`envelopeBox pulseEnvelope ${
-                isOpening ? "envelopeOpen" : ""
-              }`}
+              className="envelopeBox pulseEnvelope"
               onClick={openEnvelope}
             >
               💌
             </div>
+
             <h2 className="envelopeTitle">
               I need your attention for a second.😒
             </h2>
-            <p className="openText">Tap the letter to open.👉👈</p>
+
+            <p className="openText">
+              Tap the letter to open.👉👈
+            </p>
+
             <div className="tapHint">↓</div>
           </div>
         )}
 
         {showLetters && stage !== "final" && (
-          <div className="letterCarousel letterReveal">
-
+          <div className="letterCarousel">
             <div
               key={currentLetter}
               className={`letterCard ${
@@ -210,8 +218,8 @@ const openEnvelope = () => {
               >
                 <h3>{letters[currentLetter].title}</h3>
 
-                {letters[currentLetter].content.map((para, index) => (
-                  <p key={index}>{para}</p>
+                {letters[currentLetter].content.map((para, i) => (
+                  <p key={i}>{para}</p>
                 ))}
               </div>
 
@@ -234,7 +242,9 @@ const openEnvelope = () => {
                   <div
                     key={index}
                     className={`dot ${
-                      currentLetter === index ? "activeDot" : ""
+                      currentLetter === index
+                        ? "activeDot"
+                        : ""
                     }`}
                   />
                 ))}
@@ -266,17 +276,19 @@ const openEnvelope = () => {
             </h1>
 
             <p className="finalSubLine">
-              Through growth. Through tough times. Through change. 
+              Through growth. Through tough times. Through change.
               <br />
               Through ordinary years and unexpected ones.
             </p>
 
-            <button className="glassReplayBtn" onClick={replay}>
+            <button
+              className="glassReplayBtn"
+              onClick={replay}
+            >
               Replay This
             </button>
           </div>
         )}
-
       </div>
     </div>
   );
